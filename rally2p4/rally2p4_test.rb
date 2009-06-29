@@ -46,22 +46,26 @@ class TestRally2P4 < Test::Unit::TestCase
   def setup
     @mock_rally = MockRally.new
     @mock_p4 = MockP4.new
-    @rally2p4 = Rally2P4.new(@mock_rally, @mock_p4, :defect => "DE001", :hierarchical_requirement => "S001")
+    @rally2p4 = Rally2P4.new(@mock_rally, @mock_p4, :defect => "DE001", 
+                                                    :hierarchical_requirement => "S001")
   end
 
   def test_rally_artifacts_should_create_p4_jobs
     @mock_rally.artifacts[:hierarchical_requirement] <<  MockRallyArtifact.new("S001")
     @rally2p4.create_p4_jobs
-    assert(@mock_p4.jobs[0]["Job"] == "S001", "A p4 job should have been created from a rally story")
+    assert(@mock_p4.jobs[0]["Job"] == "S001", 
+           "A p4 job should have been created from a rally story")
     
     @mock_rally.artifacts[:defect] << MockRallyArtifact.new("DE001")
     @rally2p4.create_p4_jobs
-    assert(@mock_p4.jobs[1]["Job"] == "DE001", "A p4 job should have been created from a rally defect")
+    assert(@mock_p4.jobs[1]["Job"] == "DE001", 
+           "A p4 job should have been created from a rally defect")
 
     @mock_rally.artifacts[:defect] << MockRallyArtifact.new("DE000")
     @mock_rally.artifacts[:hierarchical_requirement] << MockRallyArtifact.new("S000")
     @rally2p4.create_p4_jobs
-    assert(@mock_p4.jobs.size == 2, "Artifacts should not be added twice, and old artifacts should not be created")
+    assert(@mock_p4.jobs.size == 2, 
+          "Artifacts should not be added twice, and old artifacts should not be created")
   end
 end
 

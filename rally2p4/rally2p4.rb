@@ -5,7 +5,7 @@ require 'generator'
 #####################
 class Rally2P4
   # The types of rally artifacts we're going to create jobs for.
-  # Hierarchical Requirement is a rally story.
+  # A Hierarchical Requirement corresponds to a rally story.
   @@rally_artifact_types = [:hierarchical_requirement, :defect]
   
   # Required parameters:
@@ -45,6 +45,7 @@ class Rally2P4
   # Create a p4 job for this rally artifact.
   # TODO: figure out the correct way to create a p4 job - this does not work
   def create_p4_job(rally_artifact)
+    puts "Creating job for " + rally_artifact.formatted_i_d
     @p4.create_job(rally_artifact.formatted_i_d)
   end
   
@@ -59,8 +60,7 @@ class Rally2P4
           
           artifacts.yield artifact
           
-          # if this was the oldest artifact we're going to index, then
-          # 
+          # if this was the oldest artifact we're going to index, then break
           break if artifact.formatted_i_d == @oldest_artifacts[type] 
         end
       end
@@ -77,13 +77,15 @@ if __FILE__ == $0
   require 'rally_rest_api'
   require 'P4'
 
- 
+  
   rally = RallyRestAPI.new(:username => 'sam.beran@pearson.com', 
                            :password => 'password')
 
   p4 = P4.new
   p4.connect
 
-  Rally2P4.new(rally, p4, :hierarchical_requirement => "S11317", 
+  rally2p4 = Rally2P4.new(rally, p4, :hierarchical_requirement => "S11317", 
                           :defect => "DE8912")
+  
+  rally2p4.create_p4_jobs
 end
