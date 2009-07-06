@@ -1,0 +1,11 @@
+development:
+  user_id: admin
+  password: hawaii
+  port: 1666
+  p4_web_url: http://p4web_not_enabled
+
+test:
+  user_id: admin
+  password: hawaii
+  port: 1666
+  p4_web_url: http://p4web_not_enabled
