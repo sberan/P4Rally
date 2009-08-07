@@ -1,3 +1,4 @@
+#
 # Requires the P4Ruby API, available from Perforce
 # NOTE: Ordinarily, we do not need to use '.rb'
 # in a require statement.  However, in this case,
