@@ -1,9 +1,12 @@
+#! /usr/bin/ruby
 
-load '../lib/RallyConnection.rb'
-load '../lib/P4Connection.rb'
+require '../config/environment.rb'
+require 'RallyConnection'
+require 'P4Connection'
 
-rally = RallyConnection.new(:username => ARGV[0],
-                            :password => ARGV[1],
+
+rally = RallyConnection.new(:username => $OPTIONS[:rally_username],
+                            :password => $OPTIONS[:rally_password],
                             :workspace => 'Sandbox',
                             :project => 'SORM')
 
@@ -18,8 +21,8 @@ new_changelists = false
 rally.new_artifacts_since(last_sync).each do |artifact|
   new_artifacts = true
   puts "Creating p4 job for #{artifact.formatted_i_d}"
-  p4.create_job(:job => artifact.formatted_i_d, 
-                :description => artifact.name, 
+  p4.create_job(:job => artifact.formatted_i_d,
+                :description => artifact.name,
                 :group => 'scm')
 end
 
@@ -39,7 +42,7 @@ p4.new_changelists_since(last_sync).each do |changelist|
       description = "<a href=\"http://perforce.ic.ncs.com/#{num}?ac=10\" target=\"_blank\">
                        #{num} - #{changelist['Description']}
                      </a>"
-      artifact.update(:perforce_changes => 
+      artifact.update(:perforce_changes =>
                       curr_changes + description)
     end
   end
