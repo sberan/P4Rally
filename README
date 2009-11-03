@@ -1,7 +1,16 @@
-A highly experemental and unstable proof-of-concept rally integration for perforce. Use at your own risk!
+A rally integration for perforce.
 
 Instructions:
   gem install p4ruby
   gem install rally_rest_api
-  cd app/bin
-  ruby p4rally-sync.rb <Your Rally Username> < Your Rally Password>
+
+Usage: [ruby] app/bin/p4rally-sync.rb [options]
+    -u, --rally_username USERNAME    The Rally user name
+    -p, --rally_password PASSWORD    The Rally password
+    -w, --rally_workspace WORKSPACE  The Rally workspace
+    -r, --rally_project PROJECT      The Rally Project
+    -U, --perforce_username USERNAME The Perforce user name
+    -P, --perforce_password PASSWORD The Perforce password
+    -t, --perforce_port PORT         The Perforce password, e.g. perforce:1666
+    -d, --update_last_sync_counter   Update last sync counter to current time and exit
+    -h, --help                       Display this screen

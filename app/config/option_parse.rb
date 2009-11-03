@@ -4,8 +4,8 @@
 require 'optparse'
 
 $OPTIONS = {}
-
-optparse = OptionParser.new do|opts|
+$REQUIRED_OPTIONS  = []
+optparse = OptionParser.new do |opts|
   # Set a banner, displayed at the top
   # of the help screen.
   # NOTE: We print [ruby] because the 'executable/entry point' script
@@ -23,41 +23,47 @@ optparse = OptionParser.new do|opts|
   # custom code immediately upon receipt of a particular value for an option.
   #
   # These are mostly self-explanatory; comments appear only where needed.
-  $OPTIONS[:rally_username] = nil
-  opts.on( '-u', '--rally-username USERNAME', 'The Rally user name' ) do |rally_username|
-    $OPTIONS[:rally_username] = rally_username
+  @opts = opts
+  
+  def add_option(key, short_switch, description, value_example = '', default = nil, &block)
+    $OPTIONS[key] = default
+    value_example.strip!
+    if value_example == ''
+      $OPTIONS[key] = :not_required
+    else
+      value_example = ' ' + value_example
+    end
+    
+    block ||= lambda {|key, value| $OPTIONS[key] = value}
+    
+    @opts.on( '-' + short_switch, "--" + key.to_s + value_example, description ) do |value|
+      block.call(key, value)
+    end
   end
-
-  $OPTIONS[:rally_password] = nil
-  opts.on( '-p', '--rally-password PASSWORD', 'The Rally password' ) do |rally_password|
-    $OPTIONS[:rally_password] = rally_password
+  
+  
+  #Define options
+  add_option :rally_username, 'u', 'The Rally user name', 'USERNAME'
+  add_option :rally_password, 'p', 'The Rally password', 'PASSWORD'
+  add_option :rally_workspace, 'w', 'The Rally workspace', 'WORKSPACE'
+  add_option :rally_project, 'r', 'The Rally Project', 'PROJECT'
+  add_option :perforce_username, 'U', 'The Perforce user name', 'USERNAME'
+  add_option :perforce_password, 'P', 'The Perforce password', 'PASSWORD'
+  add_option :perforce_port, 't', 'The Perforce password, e.g. perforce:1666', 'PORT'
+  add_option :update_last_sync_counter, 'd', 'Update last sync counter to current time and exit' do |key, value|
+    $OPTIONS[key] = true
   end
-
-  $OPTIONS[:rally_workspace] = nil
-  opts.on( '-w', '--rally-workspace WORKSPACE', 'The Rally workspace' ) do |rally_workspace|
-    $OPTIONS[:rally_workspace] = rally_workspace
-  end
-
-  $OPTIONS[:perforce_username] = nil
-  opts.on( '-U', '--perforce-username USERNAME', 'The Perforce user name' ) do |perforce_username|
-    $OPTIONS[:perforce_username] = perforce_username
-  end
-
-  $OPTIONS[:perforce_password] = nil
-  opts.on( '-P', '--perforce-password PASSWORD', 'The Perforce password' ) do |perforce_password|
-    $OPTIONS[:perforce_password] = perforce_password
-  end
-
-  $OPTIONS[:perforce_port] = nil
-  opts.on( '-t', '--perforce-port PORT', 'The Perforce password, e.g. perforce:1666' ) do |perforce_port|
-    $OPTIONS[:perforce_port] = perforce_port
-  end
-
-  # This displays the help screen
-  opts.on( '-h', '--help', 'Display this screen' ) do
-    puts opts
+  
+  add_option :help, 'h', 'Display this screen' do |key, value|
+    puts opts.help
     exit
   end
+end
+
+def failure_exit(optparse, error)
+  puts error
+  puts optparse.help
+  exit
 end
 
 # Parse the command-line. Remember there are two forms
@@ -70,17 +76,15 @@ end
 begin
   optparse.parse!
 
-  # Verify presence of each mandatory option.
-  # All options are currently mandatory.
-  # (You'd think OptionParser could do this for us, since it
-  # allows us to specify mandatory/optional options.)
+  # Verify presence of each mandatory option. if value is :not_required set it to nil
   $OPTIONS.each do |k,v|
-    unless v && v.strip != ''
-      puts optparse.help
-    exit
+    if v.nil? || v.to_s.strip == ''
+      failure_exit(optparse, k.to_s + ' is required.')
+    elsif v == :not_required
+      $OPTIONS[k] = nil
     end
   end
 rescue OptionParser::ParseError => e
-  puts optparse.help
+  failure_exit(optparse, e)
 end
 

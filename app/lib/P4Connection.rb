@@ -10,10 +10,10 @@ class P4Connection
   attr_reader :p4
 
   def initialize()
+    @p4 = P4.new
     @p4.port = $OPTIONS[:perforce_port]
     @p4.user = $OPTIONS[:perforce_username]
     @p4.password = $OPTIONS[:perforce_password]
-    @p4 = P4.new
     @p4.connect
   end
 

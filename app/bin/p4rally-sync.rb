@@ -7,10 +7,15 @@ require 'P4Connection'
 
 rally = RallyConnection.new(:username => $OPTIONS[:rally_username],
                             :password => $OPTIONS[:rally_password],
-                            :workspace => 'Sandbox',
-                            :project => 'SORM')
+                            :workspace => $OPTIONS[:rally_workspace],
+                            :project => $OPTIONS[:rally_project])
 
 p4 = P4Connection.new()
+
+if $OPTIONS[:update_last_sync_counter]
+  p4.update_last_sync_time!
+  exit
+end
 
 last_sync = p4.last_sync_time
 puts "Last sync: #{last_sync}"
@@ -27,6 +32,7 @@ rally.new_artifacts_since(last_sync).each do |artifact|
 end
 
 puts 'No new rally artifacts since last sync' if !new_artifacts
+
 p4.new_changelists_since(last_sync).each do |changelist|
   jobs = changelist['Jobs'] || []
   jobs.each do |job_name|
