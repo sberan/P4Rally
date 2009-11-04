@@ -1,6 +1,7 @@
 A rally integration for perforce.
 
 Instructions:
+  gem install builder
   gem install p4ruby
   gem install rally_rest_api
 
