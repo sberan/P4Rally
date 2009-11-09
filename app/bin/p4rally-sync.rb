@@ -27,7 +27,11 @@ rally.new_artifacts_since(last_sync).each do |artifact|
   new_artifacts = true
   puts "Creating p4 job for #{artifact.formatted_i_d}"
   p4.create_job(:job => artifact.formatted_i_d,
-                :description => artifact.name)
+                :description => "#{artifact.name}\n" \
+                                "URL:\n\n" \
+                                "#{artifact.description}",
+                :rally_workspace => artifact.workspace.name,
+                :rally_project   => artifact.project.name)
 end
 
 puts 'No new rally artifacts since last sync' if !new_artifacts
