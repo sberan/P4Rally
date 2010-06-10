@@ -18,9 +18,9 @@ class P4Connection
   end
   
   def new_changelists_since(time)
-    range = "//...@" + time.strftime(@@time_format) + ",now"
+    range = "@" + time.strftime(@@time_format) + ",now"
     puts 'executing p4 changes ' + range
-    changelists = @p4.run_changes(range)
+    changelists = @p4.run_changes("-s", "submitted", range)
     puts 'end'
     #we have to query for the full changelist in order to get the jobs
     changelists.map{ |change| @p4.run_change("-o", change["change"]).shift }
